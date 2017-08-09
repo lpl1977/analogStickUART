@@ -2,6 +2,8 @@
    analogStickUART
 */
 
+//#define DEBUGMODE
+
 /*
    Use CTC mode on Timer1 to trigger analog sampling
    Timer0 on ATmega328p is 8 bit so maximum count is 255
@@ -64,20 +66,27 @@ void setup() {
 
 void loop() {
   if (!sampleWritten && sampleWriteEnabled) {
+
+#ifdef DEBUGMODE
     Serial.print(ticksSinceStart);
     Serial.print("\t");
     Serial.print(analogSamples[0]);
     Serial.print("\t");
     Serial.println(analogSamples[1]);
+#else
+    Serial.write((byte*)&ticksSinceStart, 4);
+    Serial.write((byte*)analogSamples, 4);
+#endif
+
     sampleWritten = true;
   }
 }
 
 /*
- * serialEvent
- * 
- * Toggle sampleWriteEnabled when data is detected on serial port.
- */
+   serialEvent
+
+   Toggle sampleWriteEnabled when data is detected on serial port.
+*/
 void serialEvent() {
   Serial.read();
   sampleWriteEnabled = !sampleWriteEnabled;
